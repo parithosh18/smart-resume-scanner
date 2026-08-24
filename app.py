@@ -1,12 +1,20 @@
+import os
 import streamlit as st
 from google import genai
 from pypdf import PdfReader
+
 
 # =========================
 # GEMINI API
 # =========================
 
-client = genai.Client(api_key="GEMINI_API_KEY")
+api_key = os.environ.get("GEMINI_API_KEY")
+
+if not api_key:
+    st.error("GEMINI_API_KEY is missing.")
+    st.stop()
+
+client = genai.Client(api_key=api_key)
 
 
 # =========================
@@ -96,15 +104,13 @@ Return the following:
 """
 
             # Gemini
-        chat = client.chats.create(
+            chat = client.chats.create(
+                model="gemini-3.6-flash"
+            )
 
-            model="gemini-3.6-flash"
-        )
+            response = chat.send_message(prompt)
 
-        response = chat.send_message(prompt)
-
-        st.markdown(response.text)
-
+        # Display result
         st.success("Analysis completed!")
 
         st.markdown("## 📊 Resume Analysis")
@@ -114,6 +120,6 @@ Return the following:
         st.divider()
 
         st.info(
-    "💡 Tip: Use the missing skills identified above to improve your resume "
-    "and prepare for the job."
-)
+            "💡 Tip: Use the missing skills identified above to improve "
+            "your resume and prepare for the job."
+        )
